@@ -100,9 +100,7 @@ RUN pip3 install --no-cache-dir \
     yara-python \
     # General analysis
     pyelftools \
-    python-magic \
-    # Firmware
-    uefi-firmware-parser
+    python-magic
 
 # ============================================
 # PlatformIO (embedded development)
