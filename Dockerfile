@@ -22,6 +22,18 @@ ENV GHIDRA_HOME="/opt/ghidra"
 ENV PATH="/opt/ghidra:${PATH}"
 
 # ============================================
+# GCC 13 (Ubuntu 22.04 ships with GCC 11)
+# ============================================
+RUN apt-get update && apt-get install -y software-properties-common \
+    && add-apt-repository -y ppa:ubuntu-toolchain-r/test \
+    && apt-get update && apt-get install -y \
+    gcc-13 \
+    g++-13 \
+    && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 100 \
+    && update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-13 100 \
+    && rm -rf /var/lib/apt/lists/*
+
+# ============================================
 # Java 21 + unzip (required for Ghidra)
 # ============================================
 RUN apt-get update && apt-get install -y \
