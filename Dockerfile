@@ -1,19 +1,20 @@
-FROM ubuntu:22.04
+# Extends claude-code-sandbox with RE and embedded development tools
+# Build base first: cd claude-code-sandbox && docker build -t claude-code-sandbox:latest docker/
+FROM claude-code-sandbox:latest
 
 # ============================================
 # Build Arguments
 # ============================================
-ARG USERNAME=dev
-ARG USER_UID=1000
-ARG USER_GID=1000
 ARG TZ=America/Denver
 ARG GHIDRA_VERSION=11.2.1
 ARG GHIDRA_DATE=20241105
 ARG RIZIN_VERSION=0.7.3
 
 # ============================================
-# Environment
+# Switch to root for package installation
 # ============================================
+USER root
+
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=${TZ}
 ENV JAVA_HOME="/usr/lib/jvm/java-21-openjdk-amd64"
@@ -21,58 +22,11 @@ ENV GHIDRA_HOME="/opt/ghidra"
 ENV PATH="/opt/ghidra:${PATH}"
 
 # ============================================
-# Base System & Dev Tools
-# ============================================
-RUN apt-get update && apt-get install -y \
-    # Essentials
-    curl \
-    wget \
-    git \
-    openssh-client \
-    sudo \
-    ca-certificates \
-    gnupg \
-    # Build tools
-    build-essential \
-    cmake \
-    ninja-build \
-    # Editors
-    vim \
-    nano \
-    # Utilities
-    jq \
-    tree \
-    htop \
-    unzip \
-    # Python
-    python3 \
-    python3-pip \
-    python3-venv \
-    && rm -rf /var/lib/apt/lists/*
-
-# ============================================
-# Node.js 20.x
-# ============================================
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get install -y nodejs \
-    && rm -rf /var/lib/apt/lists/*
-
-# ============================================
-# GitHub CLI
-# ============================================
-RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
-    | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
-    && chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
-    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
-    | tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
-    && apt-get update && apt-get install -y gh \
-    && rm -rf /var/lib/apt/lists/*
-
-# ============================================
-# Java 21 (required for Ghidra)
+# Java 21 + unzip (required for Ghidra)
 # ============================================
 RUN apt-get update && apt-get install -y \
     openjdk-21-jdk \
+    unzip \
     && rm -rf /var/lib/apt/lists/*
 
 # ============================================
@@ -115,6 +69,9 @@ RUN apt-get update && apt-get install -y \
     p7zip-full \
     squashfs-tools \
     cpio \
+    # Build tools
+    cmake \
+    ninja-build \
     && rm -rf /var/lib/apt/lists/*
 
 # ============================================
@@ -126,7 +83,7 @@ RUN curl -fsSL https://github.com/rizinorg/rizin/releases/download/v${RIZIN_VERS
 # ============================================
 # Python RE/Security Tools
 # ============================================
-RUN pip3 install --no-cache-dir --break-system-packages \
+RUN pip3 install --no-cache-dir \
     # Exploit development
     pwntools \
     ropper \
@@ -150,35 +107,16 @@ RUN pip3 install --no-cache-dir --break-system-packages \
 # ============================================
 # PlatformIO (embedded development)
 # ============================================
-RUN pip3 install --no-cache-dir --break-system-packages platformio
+RUN pip3 install --no-cache-dir platformio
+
+# Pre-install common platforms (optional, adds ~1GB but faster first build)
+# RUN pio pkg install -g -p espressif32
+# RUN pio pkg install -g -p teensy
 
 # ============================================
-# Create non-root user
+# GEF - GDB Enhanced Features (install as claude user)
 # ============================================
-RUN groupadd --gid ${USER_GID} ${USERNAME} \
-    && useradd --uid ${USER_UID} --gid ${USER_GID} -m ${USERNAME} \
-    && echo "${USERNAME} ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/${USERNAME} \
-    && chmod 0440 /etc/sudoers.d/${USERNAME}
-
-# ============================================
-# GEF - GDB Enhanced Features (user install)
-# ============================================
-USER ${USERNAME}
+USER claude
 RUN curl -fsSL https://gef.blah.cat/sh | bash
-USER root
 
-# ============================================
-# Claude Code (optional - comment out if not needed)
-# ============================================
-RUN npm install -g @anthropic-ai/claude-code@latest
-
-# ============================================
-# Workspace setup
-# ============================================
-RUN mkdir -p /workspace && chown ${USERNAME}:${USERNAME} /workspace
-WORKDIR /workspace
-
-# Switch to non-root user
-USER ${USERNAME}
-
-CMD ["bash"]
+# Stay as claude user (matches base image)

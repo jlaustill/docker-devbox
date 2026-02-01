@@ -6,15 +6,15 @@ TZ="${TZ:-America/Denver}"
 
 echo "Building $IMAGE_NAME..."
 echo "Timezone: $TZ"
+echo ""
+echo "Note: Requires claude-code-sandbox:latest base image"
+echo "      Build it first: cd claude-code-sandbox && docker build -t claude-code-sandbox:latest docker/"
+echo ""
 
 docker build \
     --build-arg TZ="$TZ" \
-    --build-arg USERNAME="$(whoami)" \
-    --build-arg USER_UID="$(id -u)" \
-    --build-arg USER_GID="$(id -g)" \
     -t "$IMAGE_NAME" \
     .
 
 echo ""
-echo "Done! Run with:"
-echo "  docker run -it --rm -v \$(pwd):/workspace $IMAGE_NAME"
+echo "Done! Image: $IMAGE_NAME"

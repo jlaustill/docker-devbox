@@ -1,8 +1,8 @@
 # Docker Devbox
 
-A comprehensive development container with reverse engineering, embedded development, and AI coding tools.
+Extends [claude-code-sandbox](https://github.com/jlaustill/claude-code-sandbox) with reverse engineering and embedded development tools.
 
-## What's Included
+## What's Added
 
 | Category | Tools |
 |----------|-------|
@@ -13,47 +13,33 @@ A comprehensive development container with reverse engineering, embedded develop
 | **Network** | tshark, nmap, netcat |
 | **Crypto** | hashcat, john |
 | **Embedded** | PlatformIO, cmake, ninja |
-| **AI Coding** | Claude Code |
-| **Dev Tools** | Node.js 20, Python 3, GitHub CLI |
+
+## Prerequisites
+
+Build the base image first:
+
+```bash
+cd ~/code/claude-code-sandbox
+docker build -t claude-code-sandbox:latest docker/
+```
 
 ## Quick Start
 
 ```bash
-# Build the image (uses your UID/GID for file permissions)
+# Build devbox
 ./build.sh
 
-# Run interactively
-docker run -it --rm -v $(pwd):/workspace docker-devbox:latest
-
-# Run with GUI support (for Ghidra)
-docker run -it --rm \
-    -e DISPLAY=$DISPLAY \
-    -v /tmp/.X11-unix:/tmp/.X11-unix \
-    -v $(pwd):/workspace \
-    docker-devbox:latest
+# Or manually
+docker build -t docker-devbox:latest .
 ```
 
-## Customization
-
-### Build Arguments
+## Build Arguments
 
 | Arg | Default | Description |
 |-----|---------|-------------|
-| `USERNAME` | dev | Container username |
-| `USER_UID` | 1000 | User ID (for file permissions) |
-| `USER_GID` | 1000 | Group ID |
 | `TZ` | America/Denver | Timezone |
 | `GHIDRA_VERSION` | 11.2.1 | Ghidra version |
 | `RIZIN_VERSION` | 0.7.3 | Rizin version |
-
-### Custom Build
-
-```bash
-docker build \
-    --build-arg TZ=Europe/London \
-    --build-arg USERNAME=myuser \
-    -t my-devbox .
-```
 
 ## Usage Examples
 
