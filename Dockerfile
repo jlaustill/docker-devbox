@@ -19,6 +19,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=${TZ}
 ENV JAVA_HOME="/usr/lib/jvm/java-21-openjdk-amd64"
 ENV GHIDRA_HOME="/opt/ghidra"
+ENV GHIDRA_DIR="/opt/ghidra"
 ENV PATH="/opt/ghidra:${PATH}"
 
 # ============================================
