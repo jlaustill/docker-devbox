@@ -87,6 +87,16 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # ============================================
+# Application Development Dependencies
+# ============================================
+RUN apt-get update && apt-get install -y \
+    # Qt5 for GUI applications (kuminz-ui)
+    qtbase5-dev \
+    # PostgreSQL client (e2m-db)
+    postgresql-client \
+    && rm -rf /var/lib/apt/lists/*
+
+# ============================================
 # Rizin (modern radare2 fork)
 # ============================================
 RUN curl -fsSL https://github.com/rizinorg/rizin/releases/download/v${RIZIN_VERSION}/rizin-v${RIZIN_VERSION}-static-x86_64.tar.xz \
@@ -122,6 +132,12 @@ RUN pip3 install --no-cache-dir platformio
 # Pre-install common platforms (optional, adds ~1GB but faster first build)
 # RUN pio pkg install -g -p espressif32
 # RUN pio pkg install -g -p teensy
+
+# ============================================
+# Node.js Global Tools
+# ============================================
+ARG NPM_CACHE_BUST
+RUN npm install -g c-next
 
 # ============================================
 # GEF - GDB Enhanced Features (install as claude user)

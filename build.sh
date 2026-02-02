@@ -13,6 +13,7 @@ echo ""
 
 docker build \
     --build-arg TZ="$TZ" \
+    --build-arg NPM_CACHE_BUST="$(date +%s)" \
     -t "$IMAGE_NAME" \
     .
 
