@@ -99,6 +99,8 @@ RUN apt-get update && apt-get install -y \
     qtbase5-dev \
     # PostgreSQL client (e2m-db)
     postgresql-client \
+    # Graph visualization (dot, neato, etc.)
+    graphviz \
     && rm -rf /var/lib/apt/lists/*
 
 # ============================================
