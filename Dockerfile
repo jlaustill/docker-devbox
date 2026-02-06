@@ -82,9 +82,13 @@ RUN apt-get update && apt-get install -y \
     p7zip-full \
     squashfs-tools \
     cpio \
+    # JSON processing
+    jq \
     # Build tools
     cmake \
     ninja-build \
+    # Language servers
+    clangd \
     && rm -rf /var/lib/apt/lists/*
 
 # ============================================
@@ -138,7 +142,7 @@ RUN pip3 install --no-cache-dir platformio
 # Node.js Global Tools
 # ============================================
 ARG NPM_CACHE_BUST
-RUN npm install -g c-next
+RUN npm install -g c-next vitest typescript-language-server typescript
 
 # ============================================
 # GEF - GDB Enhanced Features (install as claude user)
