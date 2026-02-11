@@ -9,6 +9,7 @@ ARG TZ=America/Denver
 ARG GHIDRA_VERSION=11.2.1
 ARG GHIDRA_DATE=20241105
 ARG RIZIN_VERSION=0.7.3
+ARG PMD_VERSION=7.21.0
 
 # ============================================
 # Switch to root for package installation
@@ -20,7 +21,8 @@ ENV TZ=${TZ}
 ENV JAVA_HOME="/usr/lib/jvm/java-21-openjdk-amd64"
 ENV GHIDRA_HOME="/opt/ghidra"
 ENV GHIDRA_DIR="/opt/ghidra"
-ENV PATH="/opt/ghidra:${PATH}"
+ENV VOLTA_HOME="/home/claude/.volta"
+ENV PATH="${VOLTA_HOME}/bin:/opt/pmd/bin:/opt/ghidra:${PATH}"
 
 # ============================================
 # GCC 13 (Ubuntu 22.04 ships with GCC 11)
@@ -104,6 +106,15 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # ============================================
+# PMD - Static Code Analysis
+# ============================================
+RUN curl -fsSL -o /tmp/pmd.zip \
+    "https://github.com/pmd/pmd/releases/download/pmd_releases%2F${PMD_VERSION}/pmd-dist-${PMD_VERSION}-bin.zip" \
+    && unzip /tmp/pmd.zip -d /opt \
+    && rm /tmp/pmd.zip \
+    && ln -s /opt/pmd-bin-${PMD_VERSION} /opt/pmd
+
+# ============================================
 # Rizin (modern radare2 fork)
 # ============================================
 RUN curl -fsSL https://github.com/rizinorg/rizin/releases/download/v${RIZIN_VERSION}/rizin-v${RIZIN_VERSION}-static-x86_64.tar.xz \
@@ -144,12 +155,18 @@ RUN pip3 install --no-cache-dir platformio
 # Node.js Global Tools
 # ============================================
 ARG NPM_CACHE_BUST
-RUN npm install -g c-next vitest typescript-language-server typescript
+RUN npm install -g c-next vitest typescript-language-server typescript tsx
 
 # ============================================
 # GEF - GDB Enhanced Features (install as claude user)
 # ============================================
 USER claude
 RUN curl -fsSL https://gef.blah.cat/sh | bash
+
+# ============================================
+# Volta - JavaScript Tool Manager
+# ============================================
+RUN curl -fsSL https://get.volta.sh | bash
+RUN volta install node
 
 # Stay as claude user (matches base image)
