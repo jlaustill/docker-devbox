@@ -69,6 +69,7 @@ RUN apt-get update && apt-get install -y \
     ltrace \
     # ELF/binary utilities
     binutils \
+    binutils-powerpc-linux-gnu \
     elfutils \
     patchelf \
     # Network analysis
