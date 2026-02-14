@@ -147,6 +147,11 @@ RUN pip3 install --no-cache-dir \
 # ============================================
 RUN pip3 install --no-cache-dir platformio
 
+# ============================================
+# Cozempic - Claude Code Context Cleaner
+# ============================================
+RUN pip3 install --no-cache-dir cozempic
+
 # Pre-install common platforms (optional, adds ~1GB but faster first build)
 # RUN pio pkg install -g -p espressif32
 # RUN pio pkg install -g -p teensy
